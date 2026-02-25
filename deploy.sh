@@ -26,9 +26,10 @@ echo "📂 Found configuration at $ENV_FILE"
 sed -i 's/\r//' "$ENV_FILE"
 
 # Load environment variables
-set -a
-source "$ENV_FILE"
-set +a
+echo "📝 Loading environment variables..."
+export $(grep -v '^#' "$ENV_FILE" | xargs)
+export NODE_ENV=production
+echo "🌐 Mode: $NODE_ENV"
 
 # Verify DATABASE_URL
 if [ -z "$DATABASE_URL" ]; then

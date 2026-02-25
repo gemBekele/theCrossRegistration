@@ -47,14 +47,18 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Serve frontend in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../public')));
-  
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/index.html'));
-  });
-}
+// Serve frontend
+const publicPath = path.join(process.cwd(), 'public');
+app.use(express.static(publicPath));
+
+// Handle React routing, return all requests to React app
+app.get('*', (req, res, next) => {
+  // Skip if it's an API route that somehow reached here
+  if (req.path.startsWith('/api')) {
+    return next();
+  }
+  res.sendFile(path.join(publicPath, 'index.html'));
+});
 
 // Error handling
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
