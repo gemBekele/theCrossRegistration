@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { authService } from '../services/auth.service';
 import toast from 'react-hot-toast';
-import { Cross } from 'lucide-react';
+import logoIcon from '../assets/logo/1icon logo black.svg';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -38,8 +38,8 @@ const Login: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/50 mb-4">
-            <Cross className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+          <div className="inline-flex items-center justify-center mb-4">
+            <img src={logoIcon} alt="The Cross Fellowship Logo" className="w-24 h-24 object-contain dark:invert" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">The Cross Fellowship</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-2">Admin Dashboard</p>

@@ -3,6 +3,9 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { LayoutDashboard, Users, UserCog, User, LogOut, Menu, X, Sun, Moon } from 'lucide-react';
+import logoBlack from '../assets/logo/4full logo black.svg';
+import logoWhite from '../assets/logo/3full logo white.svg';
+import iconLogo from '../assets/logo/1icon logo black.svg';
 
 const Layout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -28,7 +31,10 @@ const Layout: React.FC = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Mobile header */}
       <div className="lg:hidden bg-white dark:bg-gray-800 border-b dark:border-gray-700 px-4 py-3 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-white">The Cross Fellowship</h1>
+        <div className="flex items-center gap-2">
+          <img src={iconLogo} alt="Logo" className="w-8 h-8 object-contain dark:invert" />
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">The Cross</h1>
+        </div>
         <div className="flex items-center gap-2">
           <button
             onClick={toggleTheme}
@@ -54,11 +60,16 @@ const Layout: React.FC = () => {
           } fixed lg:static lg:translate-x-0 z-30 w-64 h-screen bg-white dark:bg-gray-800 border-r dark:border-gray-700 transition-transform duration-200`}
         >
           <div className="p-6 border-b dark:border-gray-700 flex justify-between items-start">
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white hidden lg:block">
+            <div className="flex flex-col gap-1">
+              <img 
+                src={theme === 'light' ? logoBlack : logoWhite} 
+                alt="The Cross Fellowship" 
+                className="h-12 w-auto object-contain hidden lg:block" 
+              />
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white lg:hidden">
                 The Cross Fellowship
               </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Admin Dashboard</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Admin Dashboard</p>
             </div>
             <button
               onClick={toggleTheme}

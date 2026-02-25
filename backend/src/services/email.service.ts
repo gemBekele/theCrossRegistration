@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import path from 'path';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -23,18 +24,28 @@ export const sendInvitationEmail = async (
     to: email,
     subject: 'You have been invited to The Cross Fellowship Admin Dashboard',
     html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; text-align: center;">
+        <img src="cid:logo" alt="The Cross Fellowship Logo" style="width: 100px; margin-bottom: 20px;">
         <h2 style="color: #2563eb;">Welcome to The Cross Fellowship</h2>
-        <p>You have been invited as a <strong>${role === 'super_admin' ? 'Super Admin' : 'Reviewer'}</strong> on The Cross Fellowship Admin Dashboard.</p>
-        <div style="background-color: #f3f4f6; border-radius: 8px; padding: 20px; margin: 20px 0;">
-          <p style="margin: 5px 0;"><strong>Login URL:</strong> <a href="${loginUrl}">${loginUrl}</a></p>
-          <p style="margin: 5px 0;"><strong>Email:</strong> ${email}</p>
-          <p style="margin: 5px 0;"><strong>Temporary Password:</strong> ${password}</p>
+        <div style="text-align: left;">
+          <p>You have been invited as a <strong>${role === 'super_admin' ? 'Super Admin' : 'Reviewer'}</strong> on The Cross Fellowship Admin Dashboard.</p>
+          <div style="background-color: #f3f4f6; border-radius: 8px; padding: 20px; margin: 20px 0;">
+            <p style="margin: 5px 0;"><strong>Login URL:</strong> <a href="${loginUrl}">${loginUrl}</a></p>
+            <p style="margin: 5px 0;"><strong>Email:</strong> ${email}</p>
+            <p style="margin: 5px 0;"><strong>Temporary Password:</strong> ${password}</p>
+          </div>
+          <p style="color: #ef4444;"><strong>⚠️ Please change your password after your first login.</strong></p>
+          <p style="color: #6b7280; font-size: 12px;">If you did not expect this invitation, please ignore this email.</p>
         </div>
-        <p style="color: #ef4444;"><strong>⚠️ Please change your password after your first login.</strong></p>
-        <p style="color: #6b7280; font-size: 12px;">If you did not expect this invitation, please ignore this email.</p>
       </div>
     `,
+    attachments: [
+      {
+        filename: 'logo.png',
+        path: path.join(__dirname, '../assets/logo/logo.png'),
+        cid: 'logo',
+      },
+    ],
   };
 
   try {
