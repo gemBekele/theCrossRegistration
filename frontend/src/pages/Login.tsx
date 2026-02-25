@@ -96,11 +96,6 @@ const Login: React.FC = () => {
             </button>
           </form>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Default credentials: <code className="bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">admin / admin123</code>
-            </p>
-          </div>
         </div>
       </div>
     </div>
