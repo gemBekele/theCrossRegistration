@@ -74,8 +74,8 @@ npm run build
 
 # Copy frontend build to backend public folder
 echo "📋 Copying frontend build..."
-rm -rf ../backend/public
 mkdir -p ../backend/public
+rm -rf ../backend/public/*
 cp -r dist/* ../backend/public/
 
 cd ..
