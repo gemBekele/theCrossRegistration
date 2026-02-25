@@ -54,7 +54,7 @@ if ! npm run migrate; then
     echo "💡 It looks like the database might not exist on your VPS."
     DB_NAME=$(echo $DATABASE_URL | sed 's/.*\///' | sed 's/?.*//')
     echo "🚀 Run this command on your VPS to create it:"
-    echo "   sudo -u postgres createdb $DB_NAME"
+    echo "   cd /tmp && sudo -u postgres createdb $DB_NAME"
     echo ""
     exit 1
 fi
