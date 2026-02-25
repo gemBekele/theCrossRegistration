@@ -12,6 +12,12 @@ if [ ! -f .env ]; then
     exit 1
 fi
 
+# Load environment variables
+echo "📝 Loading environment variables..."
+set -a
+source .env
+set +a
+
 # Install backend dependencies
 echo "📦 Installing backend dependencies..."
 cd backend
