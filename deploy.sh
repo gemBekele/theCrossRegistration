@@ -76,6 +76,11 @@ npm run seed:admin || echo "⚠️  Seeding failed (possibly already seeded)"
 echo "🔨 Building backend..."
 npm run build
 
+# Copy backend assets (logos, etc.) to dist
+echo "📋 Copying backend assets..."
+mkdir -p dist/assets
+cp -r src/assets/* dist/assets/
+
 # Install frontend dependencies
 echo "📦 Installing frontend dependencies..."
 cd ../frontend
