@@ -5,6 +5,7 @@ import { applicantService } from '../services/applicant.service';
 import { Applicant } from '../types';
 import { Search, Filter, Download, ChevronLeft, ChevronRight, Eye, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
+import toast from 'react-hot-toast';
 
 const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
   const colors: Record<string, string> = {
@@ -37,6 +38,7 @@ const Applicants: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [isExporting, setIsExporting] = useState(false);
   
   const page = parseInt(searchParams.get('page') || '1');
   const type = searchParams.get('type') || '';
@@ -71,9 +73,25 @@ const Applicants: React.FC = () => {
     setSearchParams(newParams);
   };
 
-  const handleExport = () => {
-    const url = applicantService.exportApplicants({ type, status });
-    window.open(url, '_blank');
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      const blob = await applicantService.exportApplicants({ type, status });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `applicants_${format(new Date(), 'yyyy-MM-dd')}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success('Export successful!');
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast.error('Failed to export CSV');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -85,10 +103,20 @@ const Applicants: React.FC = () => {
         </div>
         <button
           onClick={handleExport}
-          className="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          disabled={isExporting}
+          className="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
         >
-          <Download className="w-4 h-4 mr-2" />
-          Export CSV
+          {isExporting ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-700 dark:border-gray-300 mr-2"></div>
+              Exporting...
+            </>
+          ) : (
+            <>
+              <Download className="w-4 h-4 mr-2" />
+              Export CSV
+            </>
+          )}
         </button>
       </div>
 

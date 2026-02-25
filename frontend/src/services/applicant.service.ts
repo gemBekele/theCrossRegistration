@@ -39,13 +39,13 @@ export const applicantService = {
     return response.data;
   },
 
-  exportApplicants: (params: { type?: string; status?: string }): string => {
-    const queryParams = new URLSearchParams();
-    if (params.type) queryParams.append('type', params.type);
-    if (params.status) queryParams.append('status', params.status);
-    return `${api.defaults.baseURL}/applicants/export?${queryParams.toString()}`;
+  exportApplicants: async (params: { type?: string; status?: string }): Promise<Blob> => {
+    const response = await api.get('/applicants/export', {
+      params,
+      responseType: 'blob',
+    });
+    return response.data;
   },
-
   getFileUrl: (path: string): string => {
     // Files are served at /uploads directly, not /api/uploads
     return path;
