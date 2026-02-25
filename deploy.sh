@@ -6,24 +6,34 @@ set -e
 
 echo "🚀 Starting deployment..."
 
-# Check if .env file exists
-if [ ! -f .env ]; then
-    echo "❌ .env file not found! Please create one from .env.example"
+echo "📝 Locating environment variables..."
+ENV_FILE=""
+
+if [ -f .env ]; then
+    ENV_FILE=".env"
+elif [ -f backend/.env ]; then
+    ENV_FILE="backend/.env"
+fi
+
+if [ -z "$ENV_FILE" ]; then
+    echo "❌ .env file not found! Please create one in the root or backend directory."
     exit 1
 fi
 
+echo "📂 Found configuration at $ENV_FILE"
+
 # Cleanup .env (remove Windows line endings if they exist)
-sed -i 's/\r//' .env
+sed -i 's/\r//' "$ENV_FILE"
 
 # Load environment variables
-echo "📝 Loading environment variables..."
 set -a
-source .env
+source "$ENV_FILE"
 set +a
 
 # Verify DATABASE_URL
 if [ -z "$DATABASE_URL" ]; then
-    echo "❌ DATABASE_URL is not set! Check your .env file."
+    echo "❌ DATABASE_URL is not set in $ENV_FILE!"
+    echo "💡 Make sure it's defined like: DATABASE_URL=postgresql://user:password@localhost:5432/thecross"
     exit 1
 else
     # Mask password for safety in logs
