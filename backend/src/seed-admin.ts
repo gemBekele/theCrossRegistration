@@ -4,6 +4,7 @@ import { pool } from './config/database';
 async function seedAdmin() {
   try {
     const username = 'admin';
+    const email = 'admin@thecross.org';
     const password = 'admin123';
     const role = 'super_admin';
 
@@ -14,16 +15,16 @@ async function seedAdmin() {
     const existing = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
     
     if (existing.rows.length > 0) {
-      console.log('Admin user already exists, updating password...');
+      console.log('Admin user already exists, updating password and email...');
       await pool.query(
-        'UPDATE users SET password_hash = $1 WHERE username = $2',
-        [passwordHash, username]
+        'UPDATE users SET password_hash = $1, email = $2 WHERE username = $3',
+        [passwordHash, email, username]
       );
     } else {
       console.log('Creating admin user...');
       await pool.query(
-        'INSERT INTO users (username, password_hash, role) VALUES ($1, $2, $3)',
-        [username, passwordHash, role]
+        'INSERT INTO users (username, email, password_hash, role) VALUES ($1, $2, $3, $4)',
+        [username, email, passwordHash, role]
       );
     }
 

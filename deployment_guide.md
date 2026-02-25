@@ -132,6 +132,38 @@ sudo certbot --nginx -d thecross.yourdomain.com
 
 ---
 
+## 8. Troubleshooting: "Permission denied (publickey)"
+
+If you see this error when cloning:
+
+### Option 1: Use HTTPS (Simplest)
+Instead of SSH, use the HTTPS URL which doesn't require SSH keys:
+```bash
+git clone https://github.com/gemBekele/theCrossRegistration.git /var/www/thecross
+```
+*(Note: You will need a **GitHub Personal Access Token (PAT)** as your password.)*
+
+### Option 2: Setup SSH Keys on VPS
+1. **Generate a new key**:
+   ```bash
+   ssh-keygen -t ed25519 -C "your_email@example.com"
+   # Press Enter to use default location, and Enter twice for no passphrase
+   ```
+2. **Copy the public key**:
+   ```bash
+   cat ~/.ssh/id_ed25519.pub
+   ```
+3. **Add to GitHub**:
+   - Go to [GitHub SSH Settings](https://github.com/settings/keys).
+   - Click "New SSH key".
+   - Paste the content you copied.
+4. **Test the connection**:
+   ```bash
+   ssh -T git@github.com
+   ```
+
+---
+
 ## Summary of URLs
 - **Admin Dashboard**: `https://thecross.yourdomain.com`
 - **API Base**: `https://thecross.yourdomain.com/api`

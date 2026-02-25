@@ -41,6 +41,15 @@ else
     echo "✅ DATABASE_URL is set: $MASKED_URL"
 fi
 
+# Verify JWT_SECRET
+if [ -z "$JWT_SECRET" ]; then
+    echo "❌ JWT_SECRET is not set in $ENV_FILE!"
+    echo "💡 Add a random secret like: JWT_SECRET=$(openssl rand -base64 32)"
+    exit 1
+else
+    echo "✅ JWT_SECRET is set"
+fi
+
 # Install backend dependencies
 echo "📦 Installing backend dependencies..."
 cd backend
@@ -58,6 +67,10 @@ if ! npm run migrate; then
     echo ""
     exit 1
 fi
+
+# Seed Admin User
+echo "👤 Seeding admin user..."
+npm run seed:admin || echo "⚠️  Seeding failed (possibly already seeded)"
 
 # Build backend
 echo "🔨 Building backend..."
