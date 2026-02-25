@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard';
 import Applicants from './pages/Applicants';
 import ApplicantDetail from './pages/ApplicantDetail';
 import Users from './pages/Users';
+import Profile from './pages/Profile';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
@@ -59,6 +60,7 @@ function AppContent() {
         <Route index element={<Dashboard />} />
         <Route path="applicants" element={<Applicants />} />
         <Route path="applicants/:id" element={<ApplicantDetail />} />
+        <Route path="profile" element={<Profile />} />
         <Route
           path="users"
           element={

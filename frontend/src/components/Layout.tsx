@@ -2,7 +2,7 @@ import React from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
-import { LayoutDashboard, Users, UserCog, LogOut, Menu, X, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, Users, UserCog, User, LogOut, Menu, X, Sun, Moon } from 'lucide-react';
 
 const Layout: React.FC = () => {
   const { user, logout } = useAuth();
@@ -18,6 +18,7 @@ const Layout: React.FC = () => {
   const navItems = [
     { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/applicants', icon: Users, label: 'Applicants' },
+    { path: '/profile', icon: User, label: 'Profile' },
     ...(user?.role === 'super_admin'
       ? [{ path: '/users', icon: UserCog, label: 'Users' }]
       : []),
