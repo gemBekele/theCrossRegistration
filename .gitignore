@@ -1,0 +1,33 @@
+# Node
+node_modules/
+dist/
+build/
+.npm
+*.log
+*.pid
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+backend/node_modules/
+backend/dist/
+backend/.env
+backend/*.log
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+frontend/node_modules/
+frontend/dist/
+frontend/*.log
+
+# Database
+postgres_data/
