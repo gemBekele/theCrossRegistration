@@ -28,8 +28,7 @@ sed -i 's/\r//' "$ENV_FILE"
 # Load environment variables
 echo "📝 Loading environment variables..."
 export $(grep -v '^#' "$ENV_FILE" | xargs)
-export NODE_ENV=production
-echo "🌐 Mode: $NODE_ENV"
+echo "🌐 Environment: development (for build stage)"
 
 # Verify DATABASE_URL
 if [ -z "$DATABASE_URL" ]; then
@@ -88,7 +87,7 @@ if command -v pm2 &> /dev/null; then
     echo "Using PM2..."
     cd backend
     pm2 delete thecross 2>/dev/null || true
-    pm2 start dist/index.js --name thecross
+    NODE_ENV=production pm2 start dist/index.js --name thecross
     pm2 save
 else
     echo "Using Docker..."
