@@ -19,8 +19,10 @@ app.use(helmet({
     directives: {
       ...helmet.contentSecurityPolicy.getDefaultDirectives(),
       "script-src": ["'self'", "'unsafe-inline'"],
+      "upgrade-insecure-requests": null,
     },
   },
+  hsts: false,
 }));
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
