@@ -12,11 +12,24 @@ if [ ! -f .env ]; then
     exit 1
 fi
 
+# Cleanup .env (remove Windows line endings if they exist)
+sed -i 's/\r//' .env
+
 # Load environment variables
 echo "📝 Loading environment variables..."
 set -a
 source .env
 set +a
+
+# Verify DATABASE_URL
+if [ -z "$DATABASE_URL" ]; then
+    echo "❌ DATABASE_URL is not set! Check your .env file."
+    exit 1
+else
+    # Mask password for safety in logs
+    MASKED_URL=$(echo $DATABASE_URL | sed 's/:[^@:]*@/:****@/')
+    echo "✅ DATABASE_URL is set: $MASKED_URL"
+fi
 
 # Install backend dependencies
 echo "📦 Installing backend dependencies..."
