@@ -57,7 +57,7 @@ const Layout: React.FC = () => {
         <aside
           className={`${
             isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          } fixed lg:fixed inset-y-0 left-0 z-30 w-64 bg-white dark:bg-gray-800 border-r dark:border-gray-700 transition-transform duration-200`}
+          } fixed lg:fixed inset-y-0 left-0 z-30 w-64 h-screen bg-white dark:bg-gray-800 border-r dark:border-gray-700 transition-transform duration-200`}
         >
           <div className="p-6 border-b dark:border-gray-700 flex justify-between items-start">
             <div className="flex flex-col gap-1">
