@@ -69,7 +69,9 @@ const Applicants: React.FC = () => {
     } else {
       newParams.delete(key);
     }
-    newParams.set('page', '1');
+    if (key !== 'page') {
+      newParams.set('page', '1');
+    }
     setSearchParams(newParams);
   };
 
