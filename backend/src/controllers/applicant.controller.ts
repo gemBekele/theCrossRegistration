@@ -6,7 +6,7 @@ import { format } from 'fast-csv';
 
 export const getApplicants = async (req: Request, res: Response) => {
   try {
-    const { type, status, search, page = '1', limit = '10' } = req.query;
+    const { type, status, search, page = '1', limit = '100' } = req.query;
     
     const pageNum = parseInt(page as string);
     const limitNum = parseInt(limit as string);

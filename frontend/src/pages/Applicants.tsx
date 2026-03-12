@@ -55,7 +55,7 @@ const Applicants: React.FC = () => {
     queryKey: ['applicants', page, type, status, debouncedSearch],
     queryFn: () => applicantService.getApplicants({
       page,
-      limit: 10,
+      limit: 100,
       type: type || undefined,
       status: status || undefined,
       search: debouncedSearch || undefined,
@@ -245,7 +245,7 @@ const Applicants: React.FC = () => {
             {data && data.pagination.totalPages > 1 && (
               <div className="px-6 py-4 border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-700 flex items-center justify-between">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Showing {((page - 1) * 10) + 1} to {Math.min(page * 10, data.pagination.total)} of {data.pagination.total} results
+                  Showing {((page - 1) * data.pagination.limit) + 1} to {Math.min(page * data.pagination.limit, data.pagination.total)} of {data.pagination.total} results
                 </p>
                 <div className="flex items-center space-x-2">
                   <button
