@@ -36,17 +36,19 @@ const TypeBadge: React.FC<{ type: string }> = ({ type }) => {
 
 const Applicants: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [isExporting, setIsExporting] = useState(false);
   
   const page = parseInt(searchParams.get('page') || '1');
   const type = searchParams.get('type') || '';
   const status = searchParams.get('status') || '';
+  const search = searchParams.get('search') || '';
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedSearch(search);
+      if (search !== debouncedSearch) {
+        setDebouncedSearch(search);
+      }
     }, 500);
     return () => clearTimeout(timer);
   }, [search]);
@@ -61,6 +63,17 @@ const Applicants: React.FC = () => {
       search: debouncedSearch || undefined,
     }),
   });
+
+  const handleSearchChange = (value: string) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (value) {
+      newParams.set('search', value);
+    } else {
+      newParams.delete('search');
+    }
+    newParams.set('page', '1');
+    setSearchParams(newParams);
+  };
 
   const handleFilterChange = (key: string, value: string) => {
     const newParams = new URLSearchParams(searchParams);
@@ -131,7 +144,7 @@ const Applicants: React.FC = () => {
               type="text"
               placeholder="Search by name, phone, or church..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             />
           </div>
