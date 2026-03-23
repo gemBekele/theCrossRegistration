@@ -1,6 +1,7 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { SessionModel } from '../models/session.model';
 import { ApplicantModel } from '../models/applicant.model';
+import { SettingsModel } from '../models/settings.model';
 import { messages, getMessage } from './messages';
 import { validatePhone } from '../utils/validators';
 import { downloadFile, validateAudio } from '../utils/fileHandler';
@@ -69,7 +70,15 @@ bot.onText(/\/start/, async (msg) => {
     // Clear any existing session
     await SessionModel.delete(chatId);
     console.log('✅ Session cleared for:', chatId);
-    
+
+    // Check if registration is open
+    const isRegistrationOpen = await SettingsModel.isRegistrationOpen();
+    if (!isRegistrationOpen) {
+      const lang = await getLang(chatId) || 'en';
+      await sendMessage(msg.chat.id, getMessage('registrationClosed', lang));
+      return;
+    }
+
     // Check if already registered (skip in development)
     const existing = await ApplicantModel.findByTelegramId(chatId);
     console.log('📋 Existing applicant check:', existing ? 'found' : 'not found');

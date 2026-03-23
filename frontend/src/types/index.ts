@@ -54,3 +54,7 @@ export interface Stats {
   singers: number;
   missions: number;
 }
+
+export interface Settings {
+  registration_open: boolean;
+}

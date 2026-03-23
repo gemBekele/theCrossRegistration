@@ -180,6 +180,11 @@ export const messages = {
   alreadyRegistered: {
     en: '⚠️ You have already submitted an application. Please wait for our review.',
     am: '⚠️ ከዚህ ቀን በፊት ምዝገባ አጠናቅቀዋል። እባኮትን ግምገማችንን ይጠብቁን።'
+  },
+
+  registrationClosed: {
+    en: '🔒 Registration is currently closed. Please try again later or contact us for more information.',
+    am: '🔒 ምዝገባ በአሁኑ ጊዜ ዝግጁ አይደለም። እባኮትን በኋላ ይሞክሩ ወይም ለተጨማሪ መረጃ ያግኙን።'
   }
 };
 

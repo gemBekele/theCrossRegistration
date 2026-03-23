@@ -1,8 +1,9 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { applicantService } from '../services/applicant.service';
-import { Users, Clock, CheckCircle, XCircle, Mic, Globe } from 'lucide-react';
+import { settingsService } from '../services/settings.service';
+import { Users, Clock, CheckCircle, XCircle, Mic, Globe, Lock, Unlock } from 'lucide-react';
 
 const StatCard: React.FC<{
   title: string;
@@ -33,10 +34,28 @@ const StatCard: React.FC<{
 };
 
 const Dashboard: React.FC = () => {
+  const queryClient = useQueryClient();
   const { data: stats, isLoading } = useQuery({
     queryKey: ['stats'],
     queryFn: applicantService.getStats,
   });
+
+  const { data: settings } = useQuery({
+    queryKey: ['settings'],
+    queryFn: settingsService.getSettings,
+  });
+
+  const mutation = useMutation({
+    mutationFn: (registrationOpen: boolean) =>
+      settingsService.updateSettings({ registration_open: registrationOpen }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['settings'] });
+    },
+  });
+
+  const handleToggleRegistration = () => {
+    mutation.mutate(!settings?.registration_open);
+  };
 
   if (isLoading) {
     return (
@@ -113,6 +132,45 @@ const Dashboard: React.FC = () => {
           >
             View All Applicants
           </Link>
+        </div>
+      </div>
+
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border dark:border-gray-700">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className={`p-3 rounded-xl ${settings?.registration_open ? 'bg-green-500' : 'bg-red-500'}`}>
+              {settings?.registration_open ? (
+                <Unlock className="w-6 h-6 text-white" />
+              ) : (
+                <Lock className="w-6 h-6 text-white" />
+              )}
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Registration Status
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400">
+                {settings?.registration_open
+                  ? 'Registration is currently open'
+                  : 'Registration is currently closed'}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleToggleRegistration}
+            disabled={mutation.isPending}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              settings?.registration_open
+                ? 'bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50'
+                : 'bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50'
+            } disabled:opacity-50`}
+          >
+            {mutation.isPending
+              ? 'Updating...'
+              : settings?.registration_open
+              ? 'Close Registration'
+              : 'Open Registration'}
+          </button>
         </div>
       </div>
     </div>

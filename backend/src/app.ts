@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
 import applicantRoutes from './routes/applicant.routes';
 import userRoutes from './routes/user.routes';
+import settingsRoutes from './routes/settings.routes';
 import { apiLimiter } from './middleware/rateLimit';
 
 dotenv.config();
@@ -43,6 +44,7 @@ app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/applicants', applicantRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

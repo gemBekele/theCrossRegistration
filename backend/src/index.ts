@@ -1,8 +1,23 @@
 import app from './app';
 import { bot } from './bot';
+import { query } from './config/database';
 import dotenv from 'dotenv';
 
 dotenv.config();
+
+async function initializeDatabase() {
+  try {
+    await query(`
+      CREATE TABLE IF NOT EXISTS settings (
+        id INTEGER PRIMARY KEY,
+        settings JSONB NOT NULL DEFAULT '{"registration_open": true}'
+      )
+    `);
+    console.log('✅ Settings table initialized');
+  } catch (error) {
+    console.log('Could not initialize settings table:', error);
+  }
+}
 
 process.on('uncaughtException', (err) => {
   console.error('Uncaught Exception:', err);
@@ -14,14 +29,17 @@ process.on('unhandledRejection', (reason, promise) => {
 
 const PORT = process.env.PORT || 5000;
 
-// Initialize bot (this starts the polling)
-console.log('🤖 Starting Telegram bot...');
-console.log('✅ Bot module loaded, bot object:', typeof bot);
+// Initialize database
+initializeDatabase().then(() => {
+  // Initialize bot (this starts the polling)
+  console.log('🤖 Starting Telegram bot...');
+  console.log('✅ Bot module loaded, bot object:', typeof bot);
 
-// Start Express server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📊 API available at http://localhost:${PORT}/api`);
+  // Start Express server
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📊 API available at http://localhost:${PORT}/api`);
+  });
 });
 
 // Handle graceful shutdown
