@@ -245,18 +245,20 @@ const ApplicantDetail: React.FC = () => {
           </div>
 
           {/* Actions */}
-          {applicant.status === 'pending' && (
+          {(applicant.status === 'pending' || applicant.status === 'accepted') && (
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700 p-6">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Actions</h2>
               <div className="space-y-3">
-                <button
-                  onClick={handleAccept}
-                  disabled={updateStatusMutation.isPending}
-                  className="w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  <CheckCircle className="w-5 h-5 mr-2" />
-                  Accept Application
-                </button>
+                {applicant.status === 'pending' && (
+                  <button
+                    onClick={handleAccept}
+                    disabled={updateStatusMutation.isPending}
+                    className="w-full flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <CheckCircle className="w-5 h-5 mr-2" />
+                    Accept Application
+                  </button>
+                )}
                 <button
                   onClick={() => setShowRejectModal(true)}
                   disabled={updateStatusMutation.isPending}
