@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
 import { applicantService } from '../services/applicant.service';
 import { Applicant } from '../types';
-import { Search, Filter, Download, ChevronLeft, ChevronRight, Eye, Calendar } from 'lucide-react';
+import { Search, Filter, Download, ChevronLeft, ChevronRight, Eye, Calendar, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 
@@ -38,6 +38,10 @@ const Applicants: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [isExporting, setIsExporting] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [selectedApplicantId, setSelectedApplicantId] = useState<number | null>(null);
+  const [reviewerNotes, setReviewerNotes] = useState('');
+  const queryClient = useQueryClient();
   
   const page = parseInt(searchParams.get('page') || '1');
   const type = searchParams.get('type') || '';
@@ -63,6 +67,32 @@ const Applicants: React.FC = () => {
       search: debouncedSearch || undefined,
     }),
   });
+  
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status, notes }: { id: number; status: 'accepted' | 'rejected'; notes?: string }) =>
+      applicantService.updateStatus(id, status, notes),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['applicants'] });
+      queryClient.invalidateQueries({ queryKey: ['stats'] });
+      toast.success('Status updated successfully');
+      setShowRejectModal(false);
+      setReviewerNotes('');
+      setSelectedApplicantId(null);
+    },
+    onError: () => {
+      toast.error('Failed to update status');
+    },
+  });
+
+  const handleReject = () => {
+    if (selectedApplicantId) {
+      updateStatusMutation.mutate({ 
+        id: selectedApplicantId, 
+        status: 'rejected', 
+        notes: reviewerNotes 
+      });
+    }
+  };
 
   const handleSearchChange = (value: string) => {
     const newParams = new URLSearchParams(searchParams);
@@ -249,6 +279,18 @@ const Applicants: React.FC = () => {
                           <Eye className="w-4 h-4 mr-1" />
                           View
                         </Link>
+                        {(applicant.status === 'pending' || applicant.status === 'accepted') && (
+                          <button
+                            onClick={() => {
+                              setSelectedApplicantId(applicant.id);
+                              setShowRejectModal(true);
+                            }}
+                            className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 inline-flex items-center ml-4"
+                          >
+                            <XCircle className="w-4 h-4 mr-1" />
+                            Reject
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -292,6 +334,51 @@ const Applicants: React.FC = () => {
           </>
         )}
       </div>
+      {/* Reject Modal */}
+      {showRejectModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full p-6 shadow-2xl">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Reject Application</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-4">
+              Are you sure you want to reject this application? You can optionally add notes.
+            </p>
+            <textarea
+              value={reviewerNotes}
+              onChange={(e) => setReviewerNotes(e.target.value)}
+              placeholder="Add notes (optional)..."
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none mb-4 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              rows={3}
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowRejectModal(false);
+                  setReviewerNotes('');
+                  setSelectedApplicantId(null);
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                disabled={updateStatusMutation.isPending}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleReject}
+                disabled={updateStatusMutation.isPending}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors flex items-center justify-center"
+              >
+                {updateStatusMutation.isPending ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Rejecting...
+                  </>
+                ) : (
+                  'Reject'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
