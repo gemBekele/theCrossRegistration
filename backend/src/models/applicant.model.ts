@@ -73,6 +73,11 @@ export class ApplicantModel {
     return result.rows[0] || null;
   }
 
+  static async findByStatus(status: 'pending' | 'accepted' | 'rejected'): Promise<Applicant[]> {
+    const result = await query('SELECT * FROM applicants WHERE status = $1 ORDER BY created_at DESC', [status]);
+    return result.rows;
+  }
+
   static async createSinger(data: {
     telegram_id: string;
     telegram_username?: string;

@@ -61,6 +61,23 @@ const sendMessage = async (chatId: number, text: string, options?: any) => {
   });
 };
 
+export const sendApplicantStatusNotification = async (
+  telegramId: string,
+  status: 'accepted' | 'rejected',
+  notes?: string | null
+): Promise<void> => {
+  const baseMessage =
+    status === 'accepted'
+      ? `${messages.applicationAccepted.en}\n\n${messages.applicationAccepted.am}`
+      : `${messages.applicationRejected.en}\n\n${messages.applicationRejected.am}`;
+
+  const notesBlock = notes?.trim()
+    ? `\n\n📝 Note:\n${notes.trim()}\n\n📝 ማስታወሻ:\n${notes.trim()}`
+    : '';
+
+  await bot.sendMessage(parseInt(telegramId, 10), `${baseMessage}${notesBlock}`);
+};
+
 // Start command
 bot.onText(/\/start/, async (msg) => {
   console.log('📨 RECEIVED /start from chat:', msg.chat.id);

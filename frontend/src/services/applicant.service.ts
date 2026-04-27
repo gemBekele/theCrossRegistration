@@ -1,5 +1,5 @@
 import api from './api';
-import { Applicant, ApplicantWithDetails, Stats } from '../types';
+import { Applicant, ApplicantWithDetails, Stats, StatusMessageResult } from '../types';
 
 interface ApplicantsResponse {
   applicants: Applicant[];
@@ -46,6 +46,15 @@ export const applicantService = {
     });
     return response.data;
   },
+
+  sendMessageByStatus: async (
+    status: 'pending' | 'accepted' | 'rejected',
+    message: string
+  ): Promise<StatusMessageResult> => {
+    const response = await api.post('/applicants/message-by-status', { status, message });
+    return response.data;
+  },
+
   getFileUrl: (path: string): string => {
     // Files are served at /uploads directly, not /api/uploads
     return path;

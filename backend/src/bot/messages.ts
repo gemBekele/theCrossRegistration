@@ -185,6 +185,16 @@ export const messages = {
   registrationClosed: {
     en: '🔒 Registration is currently closed. Please try again later or contact us for more information.',
     am: '🔒 ምዝገባ በአሁኑ ጊዜ ዝግጁ አይደለም። እባኮትን በኋላ ይሞክሩ ወይም ለተጨማሪ መረጃ ያግኙን።'
+  },
+
+  applicationAccepted: {
+    en: '🎉 Congratulations! Your application to The Cross Fellowship has been accepted.',
+    am: '🎉 እንኳን ደስ አለዎት! ወደ The Cross Fellowship ያስገቡት ምዝገባ ተቀባይነት አግኝቷል።'
+  },
+
+  applicationRejected: {
+    en: '🙏 Thank you for applying to The Cross Fellowship. After review, your application was not accepted this time.',
+    am: '🙏 ወደ The Cross Fellowship ለመመዝገብ እናመሰግናለን። ከግምገማ በኋላ በዚህ ጊዜ ምዝገባዎ አልተቀበለም።'
   }
 };
 

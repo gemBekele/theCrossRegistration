@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
 import { applicantService } from '../services/applicant.service';
 import { Applicant } from '../types';
-import { Search, Filter, Download, ChevronLeft, ChevronRight, Eye, Calendar, XCircle } from 'lucide-react';
+import { Search, Filter, Download, ChevronLeft, ChevronRight, Eye, Calendar, XCircle, Send } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 
@@ -41,6 +41,8 @@ const Applicants: React.FC = () => {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedApplicantId, setSelectedApplicantId] = useState<number | null>(null);
   const [reviewerNotes, setReviewerNotes] = useState('');
+  const [messageStatus, setMessageStatus] = useState<'pending' | 'accepted' | 'rejected'>('pending');
+  const [bulkMessage, setBulkMessage] = useState('');
   const queryClient = useQueryClient();
   
   const page = parseInt(searchParams.get('page') || '1');
@@ -84,6 +86,18 @@ const Applicants: React.FC = () => {
     },
   });
 
+  const sendMessageMutation = useMutation({
+    mutationFn: ({ status, message }: { status: 'pending' | 'accepted' | 'rejected'; message: string }) =>
+      applicantService.sendMessageByStatus(status, message),
+    onSuccess: (result) => {
+      toast.success(`Sent: ${result.sent}, Failed: ${result.failed}, Total: ${result.totalRecipients}`);
+      setBulkMessage('');
+    },
+    onError: () => {
+      toast.error('Failed to send message');
+    },
+  });
+
   const handleReject = () => {
     if (selectedApplicantId) {
       updateStatusMutation.mutate({ 
@@ -92,6 +106,16 @@ const Applicants: React.FC = () => {
         notes: reviewerNotes 
       });
     }
+  };
+
+  const handleSendMessage = () => {
+    const trimmedMessage = bulkMessage.trim();
+    if (!trimmedMessage) {
+      toast.error('Please enter a message first');
+      return;
+    }
+
+    sendMessageMutation.mutate({ status: messageStatus, message: trimmedMessage });
   };
 
   const handleSearchChange = (value: string) => {
@@ -205,6 +229,56 @@ const Applicants: React.FC = () => {
               </select>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Messaging Area */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700 p-4 mb-6">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-4">
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Messaging Area</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Send a Telegram message to all applicants with the selected status.</p>
+          </div>
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <select
+              value={messageStatus}
+              onChange={(e) => setMessageStatus(e.target.value as 'pending' | 'accepted' | 'rejected')}
+              className="pl-10 pr-8 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none appearance-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            >
+              <option value="pending">Pending Applicants</option>
+              <option value="accepted">Accepted Applicants</option>
+              <option value="rejected">Rejected Applicants</option>
+            </select>
+          </div>
+        </div>
+
+        <textarea
+          value={bulkMessage}
+          onChange={(e) => setBulkMessage(e.target.value)}
+          placeholder="Write the message you want to send on Telegram..."
+          rows={4}
+          className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+        />
+
+        <div className="mt-4 flex justify-end">
+          <button
+            onClick={handleSendMessage}
+            disabled={sendMessageMutation.isPending}
+            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+          >
+            {sendMessageMutation.isPending ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Sending...
+              </>
+            ) : (
+              <>
+                <Send className="w-4 h-4 mr-2" />
+                Send Message
+              </>
+            )}
+          </button>
         </div>
       </div>
 

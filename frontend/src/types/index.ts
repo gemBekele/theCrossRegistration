@@ -55,6 +55,14 @@ export interface Stats {
   missions: number;
 }
 
+export interface StatusMessageResult {
+  status: 'pending' | 'accepted' | 'rejected';
+  totalRecipients: number;
+  sent: number;
+  failed: number;
+  message: string;
+}
+
 export interface Settings {
   registration_open: boolean;
 }

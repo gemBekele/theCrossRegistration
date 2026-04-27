@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import { ApplicantModel } from '../models/applicant.model';
+import { sendApplicantStatusNotification } from '../bot';
+import { bot } from '../bot';
 import path from 'path';
 import fs from 'fs';
 import { format } from 'fast-csv';
@@ -67,14 +69,32 @@ export const updateApplicantStatus = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { status, notes } = req.body;
     const reviewerId = (req as any).user?.id;
+    const applicantId = parseInt(id);
     
     if (!['accepted', 'rejected'].includes(status)) {
       return res.status(400).json({ error: 'Invalid status' });
     }
+
+    const applicant = await ApplicantModel.findById(applicantId);
+    if (!applicant) {
+      return res.status(404).json({ error: 'Applicant not found' });
+    }
     
-    await ApplicantModel.updateStatus(parseInt(id), status, reviewerId, notes);
+    await ApplicantModel.updateStatus(applicantId, status, reviewerId, notes);
+
+    let notificationSent = true;
+    try {
+      await sendApplicantStatusNotification(applicant.telegram_id, status, notes);
+    } catch (notifyError) {
+      notificationSent = false;
+      console.error(`Failed to send Telegram decision to applicant ${applicantId}:`, notifyError);
+    }
     
-    res.json({ message: 'Status updated successfully' });
+    res.json({
+      message: notificationSent
+        ? 'Status updated and Telegram message sent successfully'
+        : 'Status updated successfully, but Telegram message could not be delivered'
+    });
   } catch (error) {
     console.error('Update status error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -87,6 +107,56 @@ export const getStats = async (req: Request, res: Response) => {
     res.json(stats);
   } catch (error) {
     console.error('Get stats error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const sendMessageByStatus = async (req: Request, res: Response) => {
+  try {
+    const { status, message } = req.body as {
+      status?: 'pending' | 'accepted' | 'rejected';
+      message?: string;
+    };
+
+    if (!status || !['pending', 'accepted', 'rejected'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    const trimmedMessage = message?.trim();
+    if (!trimmedMessage) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    const applicants = await ApplicantModel.findByStatus(status);
+
+    if (applicants.length === 0) {
+      return res.json({
+        status,
+        totalRecipients: 0,
+        sent: 0,
+        failed: 0,
+        message: 'No applicants found for selected status'
+      });
+    }
+
+    const sendResults = await Promise.allSettled(
+      applicants.map((applicant) => bot.sendMessage(parseInt(applicant.telegram_id, 10), trimmedMessage))
+    );
+
+    const sent = sendResults.filter((result) => result.status === 'fulfilled').length;
+    const failed = sendResults.length - sent;
+
+    res.json({
+      status,
+      totalRecipients: applicants.length,
+      sent,
+      failed,
+      message: failed > 0
+        ? `Message sent to ${sent} applicant(s). ${failed} delivery attempt(s) failed.`
+        : `Message sent to ${sent} applicant(s) successfully.`
+    });
+  } catch (error) {
+    console.error('Send message by status error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
